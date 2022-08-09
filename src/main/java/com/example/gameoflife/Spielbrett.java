@@ -74,4 +74,27 @@ public class Spielbrett {
         }
         board = board2;
     }
+
+    public void printBoard() {
+        StringBuilder outputBoard = new StringBuilder();
+        for (int i = 0; i < board.length; i++) { //i = Spalte
+            for (int k = 0; k < board[i].length; k++) {
+                outputBoard.append("+-");
+            }
+                outputBoard.append("+\n");
+            for (int j = 0; j < board[i].length; j++) { //j = Zeile
+                outputBoard.append("|");
+                if (board[i][j].isAlive()){
+                    outputBoard.append("#");
+                }else {
+                    outputBoard.append(" ");
+                }
+            }
+            outputBoard.append("|\n");
+        }
+        for (int k = 0; k < board[board.length -1].length; k++) {
+            outputBoard.append("+-");
+        }outputBoard.append("+");
+        System.out.println(outputBoard);
+    }
 }
