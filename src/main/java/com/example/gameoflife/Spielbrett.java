@@ -1,18 +1,38 @@
 package com.example.gameoflife;
 
+import java.util.Arrays;
+
+/**
+ * m x n Spielbrett für GameOfLife.
+ * Es wird der aktuelle Stand des Spielbretts gespeichert.
+ */
 public class Spielbrett {
-    private Zelle board[][];
 
-    public Spielbrett(int length, int heigth) {
-        board = new Zelle[heigth][length];
+    private Zelle[][] board;
 
-        for (int i = 0; i < board.length; i++) { //i = Spalte
-            for (int j = 0; j < board[i].length; j++) { //j = Zeile
-                board[i][j] = new Zelle();
+    /**
+     * Konstruktor für Spielbrett
+     *
+     * @param length Länge des Spielbretts
+     * @param height Höhe des Spielbretts
+     */
+    public Spielbrett(int length, int height) {
+        board = new Zelle[height][length];
+
+        for (int y = 0; y < board.length; y++) { //i = Spalte
+            for (int x = 0; x < board[y].length; x++) { //j = Zeile
+                board[y][x] = new Zelle();
             }
         }
     }
 
+    /**
+     * Erzeugt eine lebende Zelle an der Stelle (x,y).
+     *
+     * @param x x-Koordinate für die lebende Zelle
+     * @param y y-Koordinate für die lebende Zelle
+     * @throws IndexOutOfBoundsException falls die Koordinaten außerhalb des Spielfeldes liegen
+     */
     public void createLife(int x, int y) throws IndexOutOfBoundsException {
         if (y < 0 || y >= board.length) {
             throw new IndexOutOfBoundsException("Spalte out of bounds");
@@ -23,6 +43,13 @@ public class Spielbrett {
         board[y][x].comeToLife();
     }
 
+    /**
+     * Erzeugt eine tote Zelle an der Stelle (x,y).
+     *
+     * @param x x-Koordinate für die tote Zelle
+     * @param y y-Koordinate für die tote Zelle
+     * @throws IndexOutOfBoundsException falls die Koordinaten außerhalb des Spielfeldes liegen
+     */
     public void deleteLife(int x, int y) throws IndexOutOfBoundsException {
         if (y < 0 || y >= board.length) {
             throw new IndexOutOfBoundsException("Spalte out of bounds");
@@ -34,44 +61,78 @@ public class Spielbrett {
 
     }
 
+    /**
+     * Zählt die Anzahl der Nachbarn von der Zelle an der Stelle (x,y).
+     *
+     * @param x x-Koordinate der Zelle
+     * @param y y-Koordinate der Zelle
+     * @return Anzahl an Nachbarn
+     */
     public int countNeighbours(int x, int y) {
         int counter = 0;
-        for (int i = -1; i < 1; i++) {
-            for (int j = -1; j < 1; j++) {
-                if (board[y + i][x + j].isAlive() && (i != 0 || j != 0)) {
-                    counter++;
+        for (int dy = -1; dy < 1; dy++) {
+            for (int dx = -1; dx < 1; dx++) {
+                // Überprüft ob Index in bounds ist
+                if (y + dy >= 0 && y + dy < board.length && x + dx >= 0 && x + dx < board[y].length) {
+                    if (board[y + dy][x + dx].isAlive() && (dy != 0 || dx != 0)) {
+                        counter++;
+                    }
                 }
             }
         }
         return counter;
     }
 
+    /**
+     * Erzeugt die nächste Generation von GameOfLife.
+     */
     public void nextGeneration() {
+        Zelle[][] board2 = new Zelle[board.length][board[1].length];
 
-
-        Zelle board2[][] = new Zelle[board.length][board[1].length];
-
-        for (int i = 0; i < board2.length; i++) { //i = Spalte
-            for (int j = 0; j < board2[i].length; j++) { //j = Zeile
-                board2[i][j] = new Zelle();
+        for (int y = 0; y < board2.length; y++) { //i = Spalte
+            for (int x = 0; x < board2[y].length; x++) { //j = Zeile
+                board2[y][x] = new Zelle();
             }
         }
 
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board[x].length; y++) {
 
-                if (board[j][i].isAlive()) {
-                    board2[j][i].comeToLife();
-                    switch (countNeighbours(j, i)) {
-                        case 0, 1, 4, 5, 6, 7, 8 -> board2[j][i].kill();
+                if (board[y][x].isAlive()) {
+                    switch (countNeighbours(x, y)) {
+                        case 0, 1, 4, 5, 6, 7, 8 -> board2[y][x].kill();
+                        default -> board2[y][x].comeToLife();
                     }
                 } else {
-                    if (countNeighbours(j, i) == 3) {
-                        board2[j][i].comeToLife();
+                    if (countNeighbours(x, y) == 3) {
+                        board2[y][x].comeToLife();
                     }
                 }
             }
         }
         board = board2;
+    }
+
+    /**
+     * Gibt das Spielbrett grafisch aus (momentan Console).
+     */
+    public void printBoard() {
+        StringBuilder output = new StringBuilder();
+        for (Zelle[] zellenRow : board) {
+            Arrays.stream(zellenRow).forEach(zelle -> output.append("+-")); // ("+-")
+            output.append("+\n"); // ("+\n")
+            Arrays.stream(zellenRow).forEach(zelle -> {
+                output.append("|");
+                if (zelle.isAlive()) {
+                    output.append("#");
+                } else {
+                    output.append(" ");
+                }
+            });
+            output.append("|\n");
+        }
+        Arrays.stream(board[board.length - 1]).forEach(zelle -> output.append("+-")); // ("+-")
+        output.append("+\n"); // ("+\n")
+        System.out.println(output);
     }
 }

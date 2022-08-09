@@ -1,5 +1,8 @@
 package com.example.gameoflife;
 
+/**
+ * Zelle von GameOfLife, welche entweder tot oder am leben sein kann.
+ */
 public class Zelle {
     private boolean isAlive;
 

@@ -18,6 +18,18 @@ public class HelloApplication extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+//        launch();
+
+        Spielbrett spielbrett = new Spielbrett(10, 10);
+        spielbrett.createLife(4,4);
+        spielbrett.createLife(4, 5);
+        spielbrett.createLife(4, 6);
+        spielbrett.printBoard();
+        spielbrett.nextGeneration();
+        spielbrett.printBoard();
+        spielbrett.nextGeneration();
+        spielbrett.printBoard();
+
+        System.exit(0);
     }
 }
