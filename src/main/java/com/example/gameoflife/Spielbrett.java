@@ -17,11 +17,11 @@ public class Spielbrett {
      * @param height Höhe des Spielbretts
      */
     public Spielbrett(int length, int height) {
-        board = new Zelle[height][length];
+        this.board = new Zelle[height][length];
 
-        for (int y = 0; y < board.length; y++) { //i = Spalte
-            for (int x = 0; x < board[y].length; x++) { //j = Zeile
-                board[y][x] = new Zelle();
+        for (int y = 0; y < this.board.length; y++) { //i = Spalte
+            for (int x = 0; x < this.board[y].length; x++) { //j = Zeile
+                this.board[y][x] = new Zelle();
             }
         }
     }
@@ -34,13 +34,13 @@ public class Spielbrett {
      * @throws IndexOutOfBoundsException falls die Koordinaten außerhalb des Spielfeldes liegen
      */
     public void createLife(int x, int y) throws IndexOutOfBoundsException {
-        if (y < 0 || y >= board.length) {
+        if (y < 0 || y >= this.board.length) {
             throw new IndexOutOfBoundsException("Spalte out of bounds");
         }
-        if (x < 0 || x >= board[y].length) {
+        if (x < 0 || x >= this.board[y].length) {
             throw new IndexOutOfBoundsException("Zeile out of bounds");
         }
-        board[y][x].comeToLife();
+        this.board[y][x].comeToLife();
     }
 
     /**
@@ -51,13 +51,13 @@ public class Spielbrett {
      * @throws IndexOutOfBoundsException falls die Koordinaten außerhalb des Spielfeldes liegen
      */
     public void deleteLife(int x, int y) throws IndexOutOfBoundsException {
-        if (y < 0 || y >= board.length) {
+        if (y < 0 || y >= this.board.length) {
             throw new IndexOutOfBoundsException("Spalte out of bounds");
         }
-        if (x < 0 || x >= board[y].length) {
+        if (x < 0 || x >= this.board[y].length) {
             throw new IndexOutOfBoundsException("Zeile out of bounds");
         }
-        board[y][x].kill();
+        this.board[y][x].kill();
 
     }
 
@@ -70,11 +70,11 @@ public class Spielbrett {
      */
     public int countNeighbours(int x, int y) {
         int counter = 0;
-        for (int dy = -1; dy < 1; dy++) {
-            for (int dx = -1; dx < 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
                 // Überprüft ob Index in bounds ist
-                if (y + dy >= 0 && y + dy < board.length && x + dx >= 0 && x + dx < board[y].length) {
-                    if (board[y + dy][x + dx].isAlive() && (dy != 0 || dx != 0)) {
+                if (y + dy >= 0 && y + dy < this.board.length && x + dx >= 0 && x + dx < this.board[y].length) {
+                    if (this.board[y + dy][x + dx].isAlive() && (dy != 0 || dx != 0)) {
                         counter++;
                     }
                 }
@@ -87,7 +87,7 @@ public class Spielbrett {
      * Erzeugt die nächste Generation von GameOfLife.
      */
     public void nextGeneration() {
-        Zelle[][] board2 = new Zelle[board.length][board[1].length];
+        Zelle[][] board2 = new Zelle[this.board.length][this.board[0].length];
 
         for (int y = 0; y < board2.length; y++) { //i = Spalte
             for (int x = 0; x < board2[y].length; x++) { //j = Zeile
@@ -95,10 +95,10 @@ public class Spielbrett {
             }
         }
 
-        for (int x = 0; x < board.length; x++) {
-            for (int y = 0; y < board[x].length; y++) {
+        for (int y = 0; y < this.board.length; y++) {
+            for (int x = 0; x < this.board[y].length; x++) {
 
-                if (board[y][x].isAlive()) {
+                if (this.board[y][x].isAlive()) {
                     switch (countNeighbours(x, y)) {
                         case 0, 1, 4, 5, 6, 7, 8 -> board2[y][x].kill();
                         default -> board2[y][x].comeToLife();
@@ -110,7 +110,7 @@ public class Spielbrett {
                 }
             }
         }
-        board = board2;
+        this.board = board2;
     }
 
     /**
@@ -118,9 +118,9 @@ public class Spielbrett {
      */
     public void printBoard() {
         StringBuilder output = new StringBuilder();
-        for (Zelle[] zellenRow : board) {
-            Arrays.stream(zellenRow).forEach(zelle -> output.append("+-")); // ("+-")
-            output.append("+\n"); // ("+\n")
+        for (Zelle[] zellenRow : this.board) {
+            Arrays.stream(zellenRow).forEach(zelle -> output.append("+-"));
+            output.append("+\n");
             Arrays.stream(zellenRow).forEach(zelle -> {
                 output.append("|");
                 if (zelle.isAlive()) {
@@ -131,8 +131,8 @@ public class Spielbrett {
             });
             output.append("|\n");
         }
-        Arrays.stream(board[board.length - 1]).forEach(zelle -> output.append("+-")); // ("+-")
-        output.append("+\n"); // ("+\n")
+        Arrays.stream(this.board[this.board.length - 1]).forEach(zelle -> output.append("+-"));
+        output.append("+\n");
         System.out.println(output);
     }
 }
