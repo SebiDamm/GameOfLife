@@ -36,10 +36,12 @@ public class Spielbrett {
 
     public int countNeighbours(int x, int y) {
         int counter = 0;
-        for (int i = -1; i < 1; i++) {
-            for (int j = -1; j < 1; j++) {
-                if (board[y + i][x + j].isAlive() && (i != 0 || j != 0)) {
-                    counter++;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (y + i >= 0 && y + i < board.length && x + j >= 0 && x + j < board[y].length){
+                    if (board[y + i][x + j].isAlive() && (i != 0 || j != 0)) {
+                        counter++;
+                    }
                 }
             }
         }
@@ -60,14 +62,14 @@ public class Spielbrett {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
 
-                if (board[j][i].isAlive()) {
-                    board2[j][i].comeToLife();
+                if (board[i][j].isAlive()) {
+                    board2[i][j].comeToLife();
                     switch (countNeighbours(j, i)) {
-                        case 0, 1, 4, 5, 6, 7, 8 -> board2[j][i].kill();
+                        case 0, 1, 4, 5, 6, 7, 8 -> board2[i][j].kill();
                     }
                 } else {
                     if (countNeighbours(j, i) == 3) {
-                        board2[j][i].comeToLife();
+                        board2[i][j].comeToLife();
                     }
                 }
             }
@@ -94,7 +96,7 @@ public class Spielbrett {
         }
         for (int k = 0; k < board[board.length -1].length; k++) {
             outputBoard.append("+-");
-        }outputBoard.append("+");
+        }outputBoard.append("+\n");
         System.out.println(outputBoard);
     }
 }
