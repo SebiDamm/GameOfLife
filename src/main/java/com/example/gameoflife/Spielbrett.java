@@ -1,29 +1,48 @@
 package com.example.gameoflife;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * m x n Spielbrett für GameOfLife.
  * Es wird der aktuelle Stand des Spielbretts gespeichert.
  */
 public class Spielbrett {
+    private int width;
+    private int height;
 
     private Zelle[][] board;
+
+    public Spielbrett() {
+        this(100, 100);
+    }
 
     /**
      * Konstruktor für Spielbrett
      *
-     * @param length Länge des Spielbretts
+     * @param width  Länge des Spielbretts
      * @param height Höhe des Spielbretts
      */
-    public Spielbrett(int length, int height) {
-        this.board = new Zelle[height][length];
+    public Spielbrett(int width, int height) {
+        this.board = new Zelle[height][width];
 
         for (int y = 0; y < this.board.length; y++) { //i = Spalte
             for (int x = 0; x < this.board[y].length; x++) { //j = Zeile
                 this.board[y][x] = new Zelle();
             }
         }
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public Zelle[][] getBoard() {
+        return board;
     }
 
     /**
@@ -134,5 +153,23 @@ public class Spielbrett {
         Arrays.stream(this.board[this.board.length - 1]).forEach(zelle -> output.append("+-"));
         output.append("+\n");
         System.out.println(output);
+    }
+
+    public void clear() {
+        Random random = new Random();
+        Arrays.stream(board).forEach(colum -> {
+            Arrays.stream(colum).forEach(Zelle::kill);
+        });
+    }
+
+    public void generateRandomLife() {
+        Random random = new Random();
+        Arrays.stream(board).forEach(colum -> {
+            Arrays.stream(colum).forEach(cell -> {
+                if(random.nextInt(3) == 1) {
+                    cell.comeToLife();
+                }
+            });
+        });
     }
 }
