@@ -1,5 +1,7 @@
 package com.example.gameoflife;
 
+import java.util.Random;
+
 public class Spielbrett {
     private Zelle board[][];
 
@@ -9,6 +11,27 @@ public class Spielbrett {
         for (int i = 0; i < board.length; i++) { //i = Spalte
             for (int j = 0; j < board[i].length; j++) { //j = Zeile
                 board[i][j] = new Zelle();
+            }
+        }
+    }
+
+    public void fillSpielbrett (){
+        Random random = new Random();
+
+        for (int i = 0; i < board.length; i++) { //i = Spalte
+            for (int j = 0; j < board[i].length; j++) { //j = Zeile
+
+                if ( random.nextInt(5) == 1){
+                    board[i][j].comeToLife();
+                }
+            }
+        }
+    }
+
+    public void clearSpielbrett (){
+        for (int i = 0; i < board.length; i++) { //i = Spalte
+            for (int j = 0; j < board[i].length; j++) { //j = Zeile
+                board[i][j].kill();
             }
         }
     }
@@ -98,5 +121,10 @@ public class Spielbrett {
             outputBoard.append("+-");
         }outputBoard.append("+\n");
         System.out.println(outputBoard);
+    }
+
+
+    public Zelle[][] getBoard() {
+        return board;
     }
 }
