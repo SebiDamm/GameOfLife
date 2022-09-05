@@ -156,7 +156,6 @@ public class Spielbrett {
     }
 
     public void clear() {
-        Random random = new Random();
         Arrays.stream(board).forEach(colum -> {
             Arrays.stream(colum).forEach(Zelle::kill);
         });

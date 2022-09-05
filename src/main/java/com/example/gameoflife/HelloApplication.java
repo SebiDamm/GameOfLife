@@ -6,13 +6,10 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class HelloApplication extends Application {
@@ -33,9 +30,9 @@ public class HelloApplication extends Application {
         Button stopButton = new Button("Stop");
         Button clearButton = new Button("Clear");
 
-        final Canvas canvas = new Canvas(width * 10, height * 10);
+        final Canvas canvas = new Canvas(width * cellSize, height * cellSize);
         root.getChildren().addAll(canvas, resetButton, stepButton, runButton, stopButton, clearButton);
-        Scene scene = new Scene(root, width * 10, height * 10 + 120);
+        Scene scene = new Scene(root, width * cellSize, height * cellSize + 120);
 
         GraphicsContext graphics = canvas.getGraphicsContext2D();
 
@@ -54,17 +51,17 @@ public class HelloApplication extends Application {
         };
         runAnimation.start();
 
-        resetButton.setOnAction(l -> {
+        resetButton.setOnAction(event -> {
             board.clear();
             board.generateRandomLife();
             tick(graphics, board, width, height, cellSize);
         });
-        runButton.setOnAction(  l -> runAnimation.start());
-        stepButton.setOnAction( l -> {
+        runButton.setOnAction(event -> runAnimation.start());
+        stepButton.setOnAction(event -> {
             board.nextGeneration();
             tick(graphics, board, width, height, cellSize);
         });
-        stopButton.setOnAction( l -> runAnimation.stop());
+        stopButton.setOnAction(event -> runAnimation.stop());
         clearButton.setOnAction(event -> {
             board.clear();
             tick(graphics, board, width, height, cellSize);
@@ -76,18 +73,18 @@ public class HelloApplication extends Application {
     }
 
     public static void tick(GraphicsContext graphics, Spielbrett board, int width, int height, int cellSize) {
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (board.getBoard()[i][j].isAlive()) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (board.getBoard()[y][x].isAlive()) {
                     graphics.setFill(Color.gray(0.5, 0.5));
-                    graphics.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                    graphics.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
                     graphics.setFill(Color.RED);
-                    graphics.fillRect((i * cellSize) + 1, (j * cellSize) + 1, cellSize - 2, cellSize - 2);
-                }else {
+                    graphics.fillRect((x * cellSize) + 1, (y * cellSize) + 1, cellSize - 2, cellSize - 2);
+                } else {
                     graphics.setFill(Color.gray(0.5, 0.5));
-                    graphics.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                    graphics.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
                     graphics.setFill(Color.LAVENDER);
-                    graphics.fillRect((i * cellSize) + 1, (j * cellSize) + 1, cellSize - 2, cellSize - 2);
+                    graphics.fillRect((x * cellSize) + 1, (y * cellSize) + 1, cellSize - 2, cellSize - 2);
                 }
             }
         }
