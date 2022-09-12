@@ -6,6 +6,10 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -30,9 +34,17 @@ public class HelloApplication extends Application {
         Button stopButton = new Button("Stop");
         Button clearButton = new Button("Clear");
 
+        Slider tickRateSlider = new Slider();
+        tickRateSlider.setAccessibleText("Tick Rate");
+        tickRateSlider.setValue(0.5);
+        tickRateSlider.setMin(0);
+        tickRateSlider.setMax(2);
+        HBox tickRateBox = new HBox(new Label("Tick Rate: "), tickRateSlider);
+        HBox.setHgrow(tickRateSlider, Priority.ALWAYS);
+
         final Canvas canvas = new Canvas(width * cellSize, height * cellSize);
-        root.getChildren().addAll(canvas, resetButton, stepButton, runButton, stopButton, clearButton);
-        Scene scene = new Scene(root, width * cellSize, height * cellSize + 120);
+        root.getChildren().addAll(canvas, resetButton, stepButton, runButton, stopButton, clearButton, tickRateBox);
+        Scene scene = new Scene(root, width * cellSize, height * cellSize + 150);
 
         GraphicsContext graphics = canvas.getGraphicsContext2D();
 
@@ -41,10 +53,9 @@ public class HelloApplication extends Application {
 
             @Override
             public void handle(long now) {
-                // only update once every second
-                if ((now - lastUpdate) >= TimeUnit.MILLISECONDS.toNanos(500)) {
+                if ((now - lastUpdate) >= TimeUnit.MILLISECONDS.toNanos((long) (tickRateSlider.getValue() * 1000))) {
                     board.nextGeneration();
-                    tick(graphics, board, width, height, cellSize);
+                    refreshView(graphics, board, width, height, cellSize);
                     lastUpdate = now;
                 }
             }
@@ -54,17 +65,22 @@ public class HelloApplication extends Application {
         resetButton.setOnAction(event -> {
             board.clear();
             board.generateRandomLife();
-            tick(graphics, board, width, height, cellSize);
+            refreshView(graphics, board, width, height, cellSize);
         });
         runButton.setOnAction(event -> runAnimation.start());
         stepButton.setOnAction(event -> {
             board.nextGeneration();
-            tick(graphics, board, width, height, cellSize);
+            refreshView(graphics, board, width, height, cellSize);
         });
         stopButton.setOnAction(event -> runAnimation.stop());
         clearButton.setOnAction(event -> {
             board.clear();
-            tick(graphics, board, width, height, cellSize);
+            refreshView(graphics, board, width, height, cellSize);
+        });
+
+        canvas.setOnMouseClicked(event -> {
+            board.createLife((int) (event.getX() / cellSize), (int) (event.getY() / cellSize));
+            refreshView(graphics, board, width, height, cellSize);
         });
 
         stage.setTitle("Game of Life");
@@ -72,7 +88,7 @@ public class HelloApplication extends Application {
         stage.show();
     }
 
-    public static void tick(GraphicsContext graphics, Spielbrett board, int width, int height, int cellSize) {
+    public static void refreshView(GraphicsContext graphics, Spielbrett board, int width, int height, int cellSize) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (board.getBoard()[y][x].isAlive()) {
