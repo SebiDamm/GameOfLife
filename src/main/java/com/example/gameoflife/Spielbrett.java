@@ -77,7 +77,6 @@ public class Spielbrett {
             throw new IndexOutOfBoundsException("Zeile out of bounds");
         }
         this.board[y][x].kill();
-
     }
 
     /**
