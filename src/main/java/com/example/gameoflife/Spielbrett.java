@@ -80,6 +80,23 @@ public class Spielbrett {
     }
 
     /**
+     * Erzeugt eine tote Zelle an der Stelle (x,y).
+     *
+     * @param x x-Koordinate für die tote Zelle
+     * @param y y-Koordinate für die tote Zelle
+     * @throws IndexOutOfBoundsException falls die Koordinaten außerhalb des Spielfeldes liegen
+     */
+    public boolean isCellAlive(int x, int y) {
+        if (y < 0 || y >= this.board.length) {
+            throw new IndexOutOfBoundsException("Spalte out of bounds");
+        }
+        if (x < 0 || x >= this.board[y].length) {
+            throw new IndexOutOfBoundsException("Zeile out of bounds");
+        }
+        return this.board[y][x].isAlive();
+    }
+
+    /**
      * Zählt die Anzahl der Nachbarn von der Zelle an der Stelle (x,y).
      *
      * @param x x-Koordinate der Zelle

@@ -1,4 +1,5 @@
 plugins {
+    id 'idea'
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.10'
@@ -17,8 +18,8 @@ ext {
     junitVersion = '5.9.0'
 }
 
-sourceCompatibility = '18'
-targetCompatibility = '18'
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -30,11 +31,17 @@ application {
 }
 
 javafx {
-    version = '18-ea+6'
-    modules = ['javafx.controls', 'javafx.fxml']
+    version = '17.0.2'
+    modules = ['javafx.controls']
 }
 
 dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
@@ -53,4 +60,9 @@ jlink {
 
 jlinkZip {
     group = 'distribution'
+}
+
+task downloadDependencies(type: Copy) {
+    from sourceSets.main.runtimeClasspath
+    into 'dependencies'
 }
