@@ -7,13 +7,13 @@ import java.util.Random;
  * m x n Spielbrett für GameOfLife.
  * Es wird der aktuelle Stand des Spielbretts gespeichert.
  */
-public class Spielbrett {
+public class Board {
     private int width;
     private int height;
 
-    private Zelle[][] board;
+    private Cell[][] board;
 
-    public Spielbrett() {
+    public Board() {
         this(100, 100);
     }
 
@@ -23,12 +23,12 @@ public class Spielbrett {
      * @param width  Länge des Spielbretts
      * @param height Höhe des Spielbretts
      */
-    public Spielbrett(int width, int height) {
-        this.board = new Zelle[height][width];
+    public Board(int width, int height) {
+        this.board = new Cell[height][width];
 
         for (int y = 0; y < this.board.length; y++) { //i = Spalte
             for (int x = 0; x < this.board[y].length; x++) { //j = Zeile
-                this.board[y][x] = new Zelle();
+                this.board[y][x] = new Cell();
             }
         }
     }
@@ -41,7 +41,7 @@ public class Spielbrett {
         return width;
     }
 
-    public Zelle[][] getBoard() {
+    public Cell[][] getBoard() {
         return board;
     }
 
@@ -122,11 +122,11 @@ public class Spielbrett {
      * Erzeugt die nächste Generation von GameOfLife.
      */
     public void nextGeneration() {
-        Zelle[][] board2 = new Zelle[this.board.length][this.board[0].length];
+        Cell[][] board2 = new Cell[this.board.length][this.board[0].length];
 
         for (int y = 0; y < board2.length; y++) { //i = Spalte
             for (int x = 0; x < board2[y].length; x++) { //j = Zeile
-                board2[y][x] = new Zelle();
+                board2[y][x] = new Cell();
             }
         }
 
@@ -153,12 +153,12 @@ public class Spielbrett {
      */
     public void printBoard() {
         StringBuilder output = new StringBuilder();
-        for (Zelle[] zellenRow : this.board) {
-            Arrays.stream(zellenRow).forEach(zelle -> output.append("+-"));
+        for (Cell[] zellenRow : this.board) {
+            Arrays.stream(zellenRow).forEach(cell -> output.append("+-"));
             output.append("+\n");
-            Arrays.stream(zellenRow).forEach(zelle -> {
+            Arrays.stream(zellenRow).forEach(cell -> {
                 output.append("|");
-                if (zelle.isAlive()) {
+                if (cell.isAlive()) {
                     output.append("#");
                 } else {
                     output.append(" ");
@@ -166,14 +166,14 @@ public class Spielbrett {
             });
             output.append("|\n");
         }
-        Arrays.stream(this.board[this.board.length - 1]).forEach(zelle -> output.append("+-"));
+        Arrays.stream(this.board[this.board.length - 1]).forEach(cell -> output.append("+-"));
         output.append("+\n");
         System.out.println(output);
     }
 
     public void clear() {
         Arrays.stream(board).forEach(colum -> {
-            Arrays.stream(colum).forEach(Zelle::kill);
+            Arrays.stream(colum).forEach(Cell::kill);
         });
     }
 

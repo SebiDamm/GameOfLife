@@ -22,7 +22,7 @@ import javafx.stage.Stage;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class HelloApplication extends Application {
+public class FXApplication extends Application {
 
     private static int boardWidth;
     private static int boardHeight;
@@ -42,7 +42,7 @@ public class HelloApplication extends Application {
         offsetX = -((boardWidth * cellSize) - (windowWidth * cellSize)) / 2.;
         offsetY = -((boardHeight * cellSize) - (windowHeight * cellSize)) / 2.;
 
-        Spielbrett board = new Spielbrett(boardWidth, boardHeight);
+        Board board = new Board(boardWidth, boardHeight);
 
         VBox root = new VBox();
 
@@ -172,7 +172,7 @@ public class HelloApplication extends Application {
         stage.show();
     }
 
-    public static void draw(GraphicsContext graphics, Spielbrett board) {
+    public static void draw(GraphicsContext graphics, Board board) {
         graphics.setFill(Color.LAVENDER);
         graphics.fillRect(0, 0, windowWidth * cellSize, windowHeight * cellSize);
         for (int y = 0; y < boardHeight; y++) {
