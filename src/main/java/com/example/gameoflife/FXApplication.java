@@ -31,16 +31,18 @@ public class FXApplication extends Application {
     private static double offsetX;
     private static double offsetY;
     private static int cellSize;
+    private static double boardScale;
 
     @Override
     public void start(Stage stage) {
-        boardWidth = 200;
-        boardHeight = 200;
-        windowWidth = 50;
-        windowHeight = 50;
+        boardWidth = 300;
+        boardHeight = 300;
+        windowWidth = 500;
+        windowHeight = 500;
         cellSize = 10;
-        offsetX = -((boardWidth * cellSize) - (windowWidth * cellSize)) / 2.;
-        offsetY = -((boardHeight * cellSize) - (windowHeight * cellSize)) / 2.;
+        offsetX = (windowWidth - (boardWidth * cellSize)) / 2.;
+        offsetY = (windowHeight - (boardHeight * cellSize)) / 2.;
+        boardScale = 1;
 
         Board board = new Board(boardWidth, boardHeight);
 
@@ -70,12 +72,12 @@ public class FXApplication extends Application {
         HBox tickRateBox = new HBox(new Label("Tick Rate: "), tickRateSlider);
         HBox.setHgrow(tickRateSlider, Priority.ALWAYS);
 
-        final Canvas canvas = new Canvas(windowWidth * cellSize, windowHeight * cellSize);
+        final Canvas canvas = new Canvas(windowWidth, windowHeight);
         root.getChildren().addAll(h1, canvas, runButton, stopButton, stepButton, randomButton, clearButton, tickRateBox);
         root.setSpacing(10);
         root.setPadding(new Insets(10));
         HBox.setHgrow(randomButton, Priority.ALWAYS);
-        Scene scene = new Scene(root, canvas.getWidth() + 20, canvas.getHeight() + 280);
+        Scene scene = new Scene(root, windowWidth + 20, windowHeight + 280);
 
         GraphicsContext graphics = canvas.getGraphicsContext2D();
 
@@ -132,37 +134,42 @@ public class FXApplication extends Application {
         });
 
         canvas.setOnMouseDragged(event -> {
-            try {
-                if (event.getButton().equals(MouseButton.PRIMARY)) {
-                    double x = (event.getX() / cellSize) - (offsetX / cellSize);
-                    double y = (event.getY() / cellSize) - (offsetY / cellSize);
-                    if (board.isCellAlive((int) x, (int) y)) {
-                        board.deleteLife((int) x, (int) y);
-                    } else {
-                        board.createLife((int) x, (int) y);
-                    }
-                } else if (event.getButton().equals(MouseButton.SECONDARY)) {
-                    System.out.println(offsetX);
-                    offsetX += event.getX() - oldX.get();
-                    offsetY += event.getY() - oldY.get();
-                    oldX.set(event.getX());
-                    oldY.set(event.getY());
-                    if (offsetX > 0) {
-                        offsetX = 0;
-                    }
-                    if (offsetX < -(boardWidth- windowWidth) * cellSize) {
-                        offsetX = -(boardWidth- windowWidth) * cellSize;
-                    }
-                    if (offsetY > 0) {
-                        offsetY = 0;
-                    }
-                    if (offsetY < -(boardHeight - windowHeight) * cellSize) {
-                        offsetY = -(boardHeight - windowHeight) * cellSize;
-                    }
+            if (event.getButton().equals(MouseButton.PRIMARY)) {
+                double x = (event.getX() / cellSize) - (offsetX / cellSize);
+                double y = (event.getY() / cellSize) - (offsetY / cellSize);
+                if (board.isCellAlive((int) x, (int) y)) {
+                    board.deleteLife((int) x, (int) y);
+                } else {
+                    board.createLife((int) x, (int) y);
                 }
-                draw(graphics, board);
-            } catch (IndexOutOfBoundsException ignored) {
+            } else if (event.getButton().equals(MouseButton.SECONDARY)) {
+                offsetX += event.getX() - oldX.get();
+                offsetY += event.getY() - oldY.get();
+                oldX.set(event.getX());
+                oldY.set(event.getY());
+                checkBounds();
             }
+            draw(graphics, board);
+        });
+
+        canvas.setOnScroll(event -> {
+            boardScale *= 100.;
+            if (event.getDeltaY() > 0) {
+                boardScale += event.getDeltaY();
+            } else if (event.getDeltaY() < 0) {
+                boardScale += event.getDeltaY();
+            }
+            boardScale /= 100.;
+            cellSize = (int) (boardScale * 10);
+            if (boardScale < 0.5) {
+                boardScale = 0.5;
+                cellSize = 5;
+            } else if (boardScale > 5) {
+                boardScale = 5;
+                cellSize = 50;
+            }
+            checkBounds();
+            draw(graphics, board);
         });
 
         draw(graphics, board);
@@ -174,26 +181,21 @@ public class FXApplication extends Application {
 
     public static void draw(GraphicsContext graphics, Board board) {
         graphics.setFill(Color.LAVENDER);
-        graphics.fillRect(0, 0, windowWidth * cellSize, windowHeight * cellSize);
-        for (int y = 0; y < boardHeight; y++) {
-            for (int x = 0; x < boardWidth; x++) {
+        graphics.fillRect(0, 0, windowWidth, windowHeight);
+        for (int y = 0; y < Math.min(boardHeight * cellSize, boardHeight); y++) {
+            for (int x = 0; x < Math.min(boardWidth * cellSize, boardWidth); x++) {
+                graphics.setFill(Color.LIGHTGRAY);
+                graphics.fillRect(
+                        x * cellSize + offsetX,
+                        y * cellSize + offsetY,
+                        cellSize, cellSize);
                 if (board.getBoard()[y][x].isAlive()) {
-                    graphics.setFill(Color.LIGHTGRAY);
-                    graphics.fillRect(
-                            x * cellSize + offsetX,
-                            y * cellSize + offsetY,
-                            cellSize, cellSize);
                     graphics.setFill(Color.RED);
                     graphics.fillRect(
                             x * cellSize + 1 + offsetX,
                             y * cellSize + 1 + offsetY,
                             cellSize - 2, cellSize - 2);
                 } else {
-                    graphics.setFill(Color.LIGHTGRAY);
-                    graphics.fillRect(
-                            x * cellSize + offsetX,
-                            y * cellSize + offsetY,
-                            cellSize, cellSize);
                     graphics.setFill(Color.LAVENDER);
                     graphics.fillRect(
                             x * cellSize + 1 + offsetX,
@@ -201,6 +203,21 @@ public class FXApplication extends Application {
                             cellSize - 2, cellSize - 2);
                 }
             }
+        }
+    }
+
+    private void checkBounds() {
+        if (offsetX > 0) {
+            offsetX = 0;
+        }
+        if (offsetX < (-boardWidth * cellSize - windowWidth) / 2.) {
+            offsetX = (-boardWidth * cellSize - windowWidth) / 2.;
+        }
+        if (offsetY > 0) {
+            offsetY = 0;
+        }
+        if (offsetY < (-boardHeight * cellSize - windowHeight) / 2.) {
+            offsetY = (-boardHeight * cellSize - windowHeight) / 2.;
         }
     }
 

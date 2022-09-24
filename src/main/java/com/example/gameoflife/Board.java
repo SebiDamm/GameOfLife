@@ -8,8 +8,6 @@ import java.util.Random;
  * Es wird der aktuelle Stand des Spielbretts gespeichert.
  */
 public class Board {
-    private int width;
-    private int height;
 
     private Cell[][] board;
 
@@ -31,14 +29,6 @@ public class Board {
                 this.board[y][x] = new Cell();
             }
         }
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public int getWidth() {
-        return width;
     }
 
     public Cell[][] getBoard() {
