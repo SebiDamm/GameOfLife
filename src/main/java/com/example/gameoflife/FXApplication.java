@@ -154,11 +154,7 @@ public class FXApplication extends Application {
 
         canvas.setOnScroll(event -> {
             boardScale *= 100.;
-            if (event.getDeltaY() > 0) {
-                boardScale += event.getDeltaY();
-            } else if (event.getDeltaY() < 0) {
-                boardScale += event.getDeltaY();
-            }
+            boardScale += event.getDeltaY();
             boardScale /= 100.;
             cellSize = (int) (boardScale * 10);
             if (boardScale < 0.5) {
@@ -170,6 +166,16 @@ public class FXApplication extends Application {
             }
             if (cellSize * boardWidth < windowWidth || cellSize * boardHeight < windowHeight) {
                 cellSize = Math.max(windowWidth / boardWidth, windowHeight / boardHeight);
+            } else {
+                if (event.getDeltaY() < 0) {
+                    // raus zoomen
+                    offsetX -= windowWidth / (double) cellSize;
+                    offsetY -= windowHeight / (double) cellSize;
+                } else {
+                    // rein zoomen
+                    offsetX += windowWidth / (double) cellSize;
+                    offsetY += windowHeight / (double) cellSize;
+                }
             }
             checkBounds();
             draw(graphics, board);
