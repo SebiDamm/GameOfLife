@@ -35,13 +35,13 @@ public class FXApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-        boardWidth = 300;
-        boardHeight = 300;
+        boardWidth = 500;
+        boardHeight = 500;
         windowWidth = 500;
         windowHeight = 500;
         cellSize = 10;
-        offsetX = (windowWidth - (boardWidth * cellSize)) / 2.;
-        offsetY = (windowHeight - (boardHeight * cellSize)) / 2.;
+        offsetX = ((boardWidth * cellSize) - windowWidth) / 2.;
+        offsetY = ((boardHeight * cellSize) - windowHeight) / 2.;
         boardScale = 1;
 
         Board board = new Board(boardWidth, boardHeight);
@@ -112,8 +112,8 @@ public class FXApplication extends Application {
 
         canvas.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.PRIMARY)) {
-                double x = (event.getX() / cellSize) - (offsetX / cellSize);
-                double y = (event.getY() / cellSize) - (offsetY / cellSize);
+                double x = (event.getX() / cellSize) + (offsetX / cellSize);
+                double y = (event.getY() / cellSize) + (offsetY / cellSize);
                 if (board.isCellAlive((int) x, (int) y)) {
                     board.deleteLife((int) x, (int) y);
                 } else {
@@ -135,16 +135,16 @@ public class FXApplication extends Application {
 
         canvas.setOnMouseDragged(event -> {
             if (event.getButton().equals(MouseButton.PRIMARY)) {
-                double x = (event.getX() / cellSize) - (offsetX / cellSize);
-                double y = (event.getY() / cellSize) - (offsetY / cellSize);
+                double x = (event.getX() / cellSize) + (offsetX / cellSize);
+                double y = (event.getY() / cellSize) + (offsetY / cellSize);
                 if (board.isCellAlive((int) x, (int) y)) {
                     board.deleteLife((int) x, (int) y);
                 } else {
                     board.createLife((int) x, (int) y);
                 }
             } else if (event.getButton().equals(MouseButton.SECONDARY)) {
-                offsetX += event.getX() - oldX.get();
-                offsetY += event.getY() - oldY.get();
+                offsetX += oldX.get() - event.getX();
+                offsetY += oldY.get() - event.getY();
                 oldX.set(event.getX());
                 oldY.set(event.getY());
                 checkBounds();
@@ -168,6 +168,9 @@ public class FXApplication extends Application {
                 boardScale = 5;
                 cellSize = 50;
             }
+            if (cellSize * boardWidth < windowWidth || cellSize * boardHeight < windowHeight) {
+                cellSize = Math.max(windowWidth / boardWidth, windowHeight / boardHeight);
+            }
             checkBounds();
             draw(graphics, board);
         });
@@ -182,24 +185,24 @@ public class FXApplication extends Application {
     public static void draw(GraphicsContext graphics, Board board) {
         graphics.setFill(Color.LAVENDER);
         graphics.fillRect(0, 0, windowWidth, windowHeight);
-        for (int y = 0; y < Math.min(boardHeight * cellSize, boardHeight); y++) {
-            for (int x = 0; x < Math.min(boardWidth * cellSize, boardWidth); x++) {
+        for (int y = (int) offsetY / cellSize; y < Math.min(((windowHeight + offsetY) / cellSize) + 1, boardHeight); y++) {
+            for (int x = (int) offsetX / cellSize; x < Math.min(((windowWidth + offsetX) / cellSize) + 1, boardWidth); x++) {
                 graphics.setFill(Color.LIGHTGRAY);
                 graphics.fillRect(
-                        x * cellSize + offsetX,
-                        y * cellSize + offsetY,
+                        x * cellSize - offsetX,
+                        y * cellSize - offsetY,
                         cellSize, cellSize);
                 if (board.getBoard()[y][x].isAlive()) {
                     graphics.setFill(Color.RED);
                     graphics.fillRect(
-                            x * cellSize + 1 + offsetX,
-                            y * cellSize + 1 + offsetY,
+                            x * cellSize + 1 - offsetX,
+                            y * cellSize + 1 - offsetY,
                             cellSize - 2, cellSize - 2);
                 } else {
                     graphics.setFill(Color.LAVENDER);
                     graphics.fillRect(
-                            x * cellSize + 1 + offsetX,
-                            y * cellSize + 1 + offsetY,
+                            x * cellSize + 1 - offsetX,
+                            y * cellSize + 1 - offsetY,
                             cellSize - 2, cellSize - 2);
                 }
             }
@@ -207,17 +210,17 @@ public class FXApplication extends Application {
     }
 
     private void checkBounds() {
-        if (offsetX > 0) {
+        if (offsetX < 0) {
             offsetX = 0;
         }
-        if (offsetX < (-boardWidth * cellSize - windowWidth) / 2.) {
-            offsetX = (-boardWidth * cellSize - windowWidth) / 2.;
+        if (offsetX > boardWidth * cellSize - windowWidth) {
+            offsetX = boardWidth * cellSize - windowWidth;
         }
-        if (offsetY > 0) {
+        if (offsetY < 0) {
             offsetY = 0;
         }
-        if (offsetY < (-boardHeight * cellSize - windowHeight) / 2.) {
-            offsetY = (-boardHeight * cellSize - windowHeight) / 2.;
+        if (offsetY > boardHeight * cellSize - windowHeight) {
+            offsetY = boardHeight * cellSize - windowHeight;
         }
     }
 
