@@ -31,12 +31,13 @@ public class FXApplication extends Application {
     private static double offsetX;
     private static double offsetY;
     private static int cellSize;
+
     private static double boardScale;
 
     @Override
     public void start(Stage stage) {
-        boardWidth = 500;
-        boardHeight = 500;
+        boardWidth = 300;
+        boardHeight = 300;
         windowWidth = 500;
         windowHeight = 500;
         cellSize = 10;
@@ -153,9 +154,7 @@ public class FXApplication extends Application {
         });
 
         canvas.setOnScroll(event -> {
-            boardScale *= 100.;
-            boardScale += event.getDeltaY();
-            boardScale /= 100.;
+            boardScale += event.getDeltaY() / 100.;
             cellSize = (int) (boardScale * 10);
             if (boardScale < 0.5) {
                 boardScale = 0.5;
@@ -167,14 +166,16 @@ public class FXApplication extends Application {
             if (cellSize * boardWidth < windowWidth || cellSize * boardHeight < windowHeight) {
                 cellSize = Math.max(windowWidth / boardWidth, windowHeight / boardHeight);
             } else {
+                System.out.println(event.getX());
+                System.out.println(offsetX);
                 if (event.getDeltaY() < 0) {
                     // raus zoomen
-                    offsetX -= windowWidth / (double) cellSize;
-                    offsetY -= windowHeight / (double) cellSize;
+                    offsetX -= event.getX() / boardScale;
+                    offsetY -= event.getY() / boardScale;
                 } else {
                     // rein zoomen
-                    offsetX += windowWidth / (double) cellSize;
-                    offsetY += windowHeight / (double) cellSize;
+                    offsetX += event.getX() / boardScale;
+                    offsetY += event.getY() / boardScale;
                 }
             }
             checkBounds();
@@ -200,17 +201,13 @@ public class FXApplication extends Application {
                         cellSize, cellSize);
                 if (board.getBoard()[y][x].isAlive()) {
                     graphics.setFill(Color.RED);
-                    graphics.fillRect(
-                            x * cellSize + 1 - offsetX,
-                            y * cellSize + 1 - offsetY,
-                            cellSize - 2, cellSize - 2);
                 } else {
                     graphics.setFill(Color.LAVENDER);
-                    graphics.fillRect(
-                            x * cellSize + 1 - offsetX,
-                            y * cellSize + 1 - offsetY,
-                            cellSize - 2, cellSize - 2);
                 }
+                graphics.fillRect(
+                        x * cellSize + 1 - offsetX,
+                        y * cellSize + 1 - offsetY,
+                        cellSize - 2, cellSize - 2);
             }
         }
     }
@@ -218,14 +215,12 @@ public class FXApplication extends Application {
     private void checkBounds() {
         if (offsetX < 0) {
             offsetX = 0;
-        }
-        if (offsetX > boardWidth * cellSize - windowWidth) {
+        } else if (offsetX > boardWidth * cellSize - windowWidth) {
             offsetX = boardWidth * cellSize - windowWidth;
         }
         if (offsetY < 0) {
             offsetY = 0;
-        }
-        if (offsetY > boardHeight * cellSize - windowHeight) {
+        } else if (offsetY > boardHeight * cellSize - windowHeight) {
             offsetY = boardHeight * cellSize - windowHeight;
         }
     }
