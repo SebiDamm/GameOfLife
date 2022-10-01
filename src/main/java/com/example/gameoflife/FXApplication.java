@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class FXApplication extends Application {
@@ -153,29 +154,35 @@ public class FXApplication extends Application {
             draw(graphics, board);
         });
 
+        AtomicInteger zoomBoundsCount = new AtomicInteger();
         canvas.setOnScroll(event -> {
+            int oldCellSize = cellSize;
             boardScale += event.getDeltaY() / 100.;
             cellSize = (int) (boardScale * 10);
             if (boardScale < 0.5) {
                 boardScale = 0.5;
                 cellSize = 5;
+                zoomBoundsCount.getAndIncrement();
             } else if (boardScale > 5) {
                 boardScale = 5;
                 cellSize = 50;
-            }
-            if (cellSize * boardWidth < windowWidth || cellSize * boardHeight < windowHeight) {
-                cellSize = Math.max(windowWidth / boardWidth, windowHeight / boardHeight);
+                zoomBoundsCount.getAndIncrement();
             } else {
-                System.out.println(event.getX());
-                System.out.println(offsetX);
+                zoomBoundsCount.set(0);
+            }
+            if (zoomBoundsCount.get() < 2) {
                 if (event.getDeltaY() < 0) {
-                    // raus zoomen
-                    offsetX -= event.getX() / boardScale;
-                    offsetY -= event.getY() / boardScale;
+                    // zoom in -> -
+                    offsetX *= ((double) cellSize) / (double) oldCellSize;
+                    offsetY *= ((double) cellSize) / (double) oldCellSize;
+                    offsetX -= windowWidth / (double) oldCellSize;
+                    offsetY -= windowHeight / (double) oldCellSize;
                 } else {
-                    // rein zoomen
-                    offsetX += event.getX() / boardScale;
-                    offsetY += event.getY() / boardScale;
+                    // zoom out -> +
+                    offsetX *= ((double) cellSize) / (double) oldCellSize;
+                    offsetY *= ((double) cellSize) / (double) oldCellSize;
+                    offsetX += windowWidth / (double) oldCellSize;
+                    offsetY += windowHeight / (double) oldCellSize;
                 }
             }
             checkBounds();
@@ -213,6 +220,9 @@ public class FXApplication extends Application {
     }
 
     private void checkBounds() {
+        if (cellSize * boardWidth < windowWidth || cellSize * boardHeight < windowHeight) {
+            cellSize = Math.max(windowWidth / boardWidth, windowHeight / boardHeight);
+        }
         if (offsetX < 0) {
             offsetX = 0;
         } else if (offsetX > boardWidth * cellSize - windowWidth) {
